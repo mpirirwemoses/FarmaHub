@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 
+
 function Category({ categories = [], onCategoryClick }) {
   
   return (
@@ -8,7 +9,7 @@ function Category({ categories = [], onCategoryClick }) {
       <h2 className="text-2xl font-bold mb-6 font-roboto">
         Browse by Category
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
         {categories.map((category) => (
           <div
             key={category.id}

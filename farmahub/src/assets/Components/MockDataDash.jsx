@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import StoryComponent from "./BookContractMock";
 
 // Mock API Functions
 async function fetchFeaturedFarmers() {
@@ -49,6 +50,12 @@ export default function Dashboard() {
   const [recentContracts, setRecentContracts] = useState([]);
   const [contractStats, setContractStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [clicked, setClicked] = useState(false);
+
+  // Function to handle button click
+  const handleClick = () => {
+    setClicked(!clicked); // Toggle the clicked state
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -137,7 +144,7 @@ export default function Dashboard() {
             <h2 className="text-xl font-bold mb-4 text-gray-800">Recent Contracts</h2>
             <div className="space-y-4">
               {recentContracts.map((contract) => (
-                <div key={contract.id} className="p-4 border rounded-lg">
+                <div key={contract.id} onClick={()=>{handleClick()}} className="p-4 border rounded-lg">
                   <p className="font-medium text-gray-900">{contract.produce_name}</p>
                   <p className="text-sm text-gray-600">
                     Farmer: {contract.farm_name} | Restaurant: {contract.restaurant_name}
@@ -150,6 +157,7 @@ export default function Dashboard() {
               ))}
             </div>
           </div>
+          <div className="content-below">{clicked && (<div className="content-below"><StoryComponent/></div>)}</div>
 
           {/* Detailed Stats */}
           <div className="bg-white rounded-lg shadow-md p-6">

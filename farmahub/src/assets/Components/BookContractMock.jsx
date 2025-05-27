@@ -213,17 +213,7 @@ function StoryComponent() {
         />
       </div>
 
-      {/* Loading State */}
-      <div>
-        <h3 className="text-lg font-bold mb-4">Loading State</h3>
-        <RebookContract existingContract={sampleExistingContract} />
-      </div>
-
-      {/* Error State */}
-      <div>
-        <h3 className="text-lg font-bold mb-4">Error State</h3>
-        <RebookContract existingContract={null} />
-      </div>
+      
     </div>
   );
 }

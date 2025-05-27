@@ -1,13 +1,25 @@
 import ProductList from "./Productslist";
+import image1 from "../../assets/images/istockphoto-152150863-1024x1024.jpg"
+import image10 from "../../assets/images/istockphoto-1066928884-1024x1024.jpg";
+import image2 from "../../assets/images/istockphoto-1324921732-1024x1024.jpg";
+import image3 from "../../assets/images/pexels-goumbik-952476.jpg";
+import { useState } from "react";
+
 
 function ProductListDisplay() {
+   const [clicked, setClicked] = useState(false);
+  
+    // Function to handle button click
+    const handleClick = () => {
+      setClicked(!clicked); // Toggle the clicked state
+    };
     const sampleProducts = [
       {
         id: 1,
         name: "Organic Tomatoes",
         description: "Fresh, locally grown organic tomatoes",
         price: 4.99,
-        image: "/images/tomatoes.jpg",
+        image: image1,
         farmerId: 1,
       },
       {
@@ -15,7 +27,7 @@ function ProductListDisplay() {
         name: "Fresh Lettuce",
         description: "Crisp, green lettuce from local farms",
         price: 2.99,
-        image: "/images/lettuce.jpg",
+        image: image2,
         farmerId: 2,
       },
       {
@@ -23,7 +35,7 @@ function ProductListDisplay() {
         name: "Sweet Corn",
         description: "Hand-picked sweet corn",
         price: 3.99,
-        image: "/images/corn.jpg",
+        image: image3,
         farmerId: 1,
       },
     ];

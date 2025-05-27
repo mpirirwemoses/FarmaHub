@@ -1,8 +1,22 @@
 "use client";
 import React, { useState } from "react";
+import { ExampleUsage } from "./ContractDetails";
+import { useNavigate } from "react-router-dom";
 
 // Sample Opportunity Card Component
 function OpportunityCard({ contract }) {
+  const [clicked, setClicked] = useState(false);
+
+  // Function to handle button click
+  const handleClick = () => {
+    setClicked(!clicked); // Toggle the clicked state
+  };
+  const navigate = useNavigate(); // Initialize navigate
+
+  const handleButtonClick = (id) => {
+    navigate(`/example-usage/${id}`); // Navigate to the profile route with the ID
+  }
+  
   return (
     <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
       <h3 className="text-xl font-bold mb-2">{contract.produce_name}</h3>
@@ -37,10 +51,11 @@ function OpportunityCard({ contract }) {
       </p>
       <button
         className="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors"
-        onClick={() => alert(`Viewing details of contract #${contract.id}`)}
+        onClick={() =>{ handleClick(), handleButtonClick(contract.id), alert(`Viewing details of contract #${contract.id}`)}}
       >
         View Details
       </button>
+      {clicked && (<div className="content-below"><ExampleUsage/></div>)}
     </div>
   );
 }

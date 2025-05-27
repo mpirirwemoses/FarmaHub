@@ -1,11 +1,20 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
+import Profile from "./ContractsList";
+import { Link } from "react-router-dom";
 
 function ProductList({ categoryId, products: initialProducts = [] }) {
   const [products, setProducts] = useState(initialProducts);
   const [loading, setLoading] = useState(!initialProducts.length);
   const [error, setError] = useState(null);
+  const [clicked, setClicked] = useState(false);
+  
+    // Function to handle button click
+    const handleClick = () => {
+      setClicked(!clicked); // Toggle the clicked state
+    };
+    
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -18,7 +27,7 @@ function ProductList({ categoryId, products: initialProducts = [] }) {
         setProducts(data);
       } catch (err) {
         console.error("Failed to fetch products:", err);
-        setError("Unable to load products. Please try again later.");
+       // setError("Unable to load products. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -47,13 +56,14 @@ function ProductList({ categoryId, products: initialProducts = [] }) {
     );
   }
 
-  if (!products.length) {
+ /* if (!products.length) {
     return (
       <div className="container mx-auto p-6 text-center text-gray-500">
         No products found in this category.
       </div>
     );
   }
+    */
 
   return (
     <div className="container mx-auto p-6">
@@ -77,14 +87,17 @@ function ProductList({ categoryId, products: initialProducts = [] }) {
                 <span className="text-green-500 font-bold">
                   ${product.price}/kg
                 </span>
-                <button
+             <Link to ={`/farmer-profile/${product.id}`} >  <button
                   className="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-                  onClick={() =>
-                    (window.location.href = `/farmers/${product.farmerId}`)
+                  onClick={() =>{
+                    handleClick()
+                    handleButtonClick(product.id)
+                  }
                   }
                 >
                   View Farmer
-                </button>
+                </button></Link>
+             
               </div>
             </div>
           </div>

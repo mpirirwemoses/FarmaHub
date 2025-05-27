@@ -1,7 +1,32 @@
 "use client";
-import React from "react";
-import ProductList from "./product-list";
+import React, { useState, useEffect } from "react";
+import image4 from "../../assets/images/pexels-jill-wellington-1638660-413735.jpg";
+import image5 from "../../assets/images/pexels-joaojesusdesign-1084540.jpg";
+import "./ProductDisplay"
+import ProductDisplay from "./ProductDisplay";
+// Sample ProductList Component (Inline for simplicity)
+function ProductList({ farmerId }) {
+  const mockProducts = [
+    { id: 1, name: "Tomatoes", price: 2.5, unit: "kg" },
+    { id: 2, name: "Carrots", price: 1.8, unit: "kg" },
+    { id: 3, name: "Apples", price: 3.0, unit: "kg" },
+  ];
 
+  return (
+    <div className="space-y-4">
+      {mockProducts.map((product) => (
+        <div key={product.id} onClick={<ProductDisplay/>} className="bg-gray-100 p-4 rounded-lg">
+          <h3 className="font-semibold">{product.name}</h3>
+          <p className="text-gray-600">
+            ${product.price}/{product.unit}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// FarmerProfile Component
 function FarmerProfile({ farmerId }) {
   const [farmer, setFarmer] = useState(null);
   const [activeTab, setActiveTab] = useState("about");
@@ -11,24 +36,24 @@ function FarmerProfile({ farmerId }) {
   useEffect(() => {
     const fetchFarmer = async () => {
       try {
-        const response = await fetch("/api/farmers", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ action: "get", farmerId }),
-        });
+        // Simulate API delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch farmer: ${response.status}`);
+        // Mock API response based on farmerId
+        if (farmerId === 1) {
+          setFarmer({
+            id: 1,
+            farm_name: "Green Acres Farm",
+            location: "Springfield Valley",
+            profile_image:image5 ,
+            email: "farmer@greenacres.com",
+            description:
+              "We are a family-owned farm specializing in organic produce and sustainable farming practices.",
+            specialties: ["Organic Vegetables", "Herbs", "Fruits"],
+          });
+        } else {
+          throw new Error("Farmer not found");
         }
-
-        const data = await response.json();
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        setFarmer(data.farmer);
       } catch (err) {
         console.error("Failed to fetch farmer:", err);
         setError("Unable to load farmer profile. Please try again later.");
@@ -83,13 +108,11 @@ function FarmerProfile({ farmerId }) {
             className="absolute -bottom-16 left-6 w-32 h-32 rounded-full border-4 border-white object-cover"
           />
         </div>
-
         <div className="mt-20 p-6">
           <h1 className="text-3xl font-bold mb-2 font-roboto">
             {farmer.farm_name}
           </h1>
           <p className="text-gray-600 mb-4">{farmer.location}</p>
-
           <div className="flex mb-6 space-x-4">
             <button
               className={`px-4 py-2 rounded transition-colors ${
@@ -122,7 +145,6 @@ function FarmerProfile({ farmerId }) {
               Reviews
             </button>
           </div>
-
           {activeTab === "about" && (
             <div>
               <h2 className="text-xl font-semibold mb-4 font-roboto">
@@ -151,9 +173,7 @@ function FarmerProfile({ farmerId }) {
               </div>
             </div>
           )}
-
           {activeTab === "products" && <ProductList farmerId={farmerId} />}
-
           {activeTab === "reviews" && (
             <div className="text-center text-gray-500">
               Reviews coming soon...
@@ -165,36 +185,27 @@ function FarmerProfile({ farmerId }) {
   );
 }
 
-function StoryComponent() {
-  const sampleFarmer = {
-    id: 1,
-    farm_name: "Green Acres Farm",
-    location: "Springfield Valley",
-    profile_image: "/images/farm1.jpg",
-    email: "farmer@greenacres.com",
-    description:
-      "We are a family-owned farm specializing in organic produce and sustainable farming practices.",
-    specialties: ["Organic Vegetables", "Herbs", "Fruits"],
-  };
-
+// Main Component for Testing
+export default function FarmerProf() {
   return (
     <div className="bg-gray-50 p-4 space-y-8">
+      {/* Loading State */}
       <div>
         <h3 className="text-lg font-bold mb-4">Loading State</h3>
-        <MainComponent farmerId={null} />
+        <FarmerProfile farmerId={null} />
       </div>
 
+      {/* With Farmer Data */}
       <div>
         <h3 className="text-lg font-bold mb-4">With Farmer Data</h3>
-        <MainComponent farmerId={1} />
+        <FarmerProfile farmerId={1} />
       </div>
 
+      {/* Error State */}
       <div>
         <h3 className="text-lg font-bold mb-4">Error State</h3>
-        <MainComponent farmerId={999} />
+        <FarmerProfile farmerId={999} />
       </div>
     </div>
   );
 }
-
-export default MainComponent;

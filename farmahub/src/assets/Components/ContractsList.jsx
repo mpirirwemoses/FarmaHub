@@ -1,12 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import { PhoneCall, Copy, Star, PlayCircle, CheckCircle } from "lucide-react";
-
+import image10 from "../../assets/images/istockphoto-1066928884-1024x1024.jpg";
+import image2 from "../../assets/images/istockphoto-1324921732-1024x1024.jpg";
+import image3 from "../../assets/images/pexels-goumbik-952476.jpg";
 // Placeholder images for demonstration
 const placeholderImages = [
-  "https://via.placeholder.com/300x200?text=Product+1",
-  "https://via.placeholder.com/300x200?text=Product+2",
-  "https://via.placeholder.com/300x200?text=Product+3",
+ image10, image2,image3
 ];
 
 function Profile() {
@@ -50,7 +50,7 @@ function Profile() {
           {/* Left Section (Image & Video) */}
           <div className="space-y-6">
             {/* Main Image or Video */}
-            <div className="relative aspect-square rounded-lg overflow-hidden bg-white shadow-md">
+            <div className="relative w-[500px] h-[500px] aspect-square rounded-lg overflow-hidden bg-white shadow-md">
               {isVideoPlaying ? (
                 <video
                   src={profile.video}
