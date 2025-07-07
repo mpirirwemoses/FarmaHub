@@ -1,102 +1,93 @@
-"use client";
 import React, { useState } from "react";
-import image6 from "../../assets/images/pexels-markusspiske-131772.jpg";
-import image7 from "../../assets/images/pexels-pixabay-248420.jpg";
-import image8 from "../../assets/images/pexels-wendywei-1656663.jpg";
-import image9 from "../../assets/images/trees-2900064_1920.jpg";
+import { FaUser, FaCalendarAlt, FaFileAlt, FaClock } from "react-icons/fa";
 
+const initialProposals = [
+  {
+    id: 1,
+    title: "Smart Irrigation System",
+    submittedBy: "You",
+    date: "2025-07-06",
+    status: "Pending",
+    description: "A system that uses soil moisture and weather data to automate irrigation.",
+  },
+  {
+    id: 2,
+    title: "AI Crop Disease Detector",
+    submittedBy: "You",
+    date: "2025-07-05",
+    status: "Approved",
+    description: "An AI mobile app that detects crop diseases from leaf images.",
+  },
+  {
+    id: 3,
+    title: "Digital Market Access",
+    submittedBy: "You",
+    date: "2025-07-04",
+    status: "Rejected",
+    description: "A platform to connect rural farmers directly to urban buyers.",
+  },
+];
 
-// Sample FarmerCard Component (Inline for simplicity)
-function FarmerCard({ farmer }) {
-  return (
-    <div
-      onClick={() => alert(`Viewing profile of ${farmer.farm_name}`)}
-      className="bg-white rounded-lg relative  shadow-md p-4 cursor-pointer hover:shadow-lg transition-shadow"
-    >
-      <img
-        src={farmer.profile_image || "/images/default-farm.jpg"}
-        alt={`${farmer.farm_name} farm view`}
-        className="w-full h-48 object-cover rounded-lg mb-4"
-      />
-      <h3 className="text-xl font-bold font-roboto">{farmer.farm_name}</h3>
-      <p className="text-gray-600">{farmer.location}</p>
-      <div className="flex items-center mt-2">
-        <i className="fas fa-star text-yellow-400 mr-1"></i>
-        <span className="text-gray-600">
-          {farmer.rating || "4.5"} ({farmer.review_count || "0"} reviews)
-        </span>
-      </div>
-      <div className="mt-2 py-4 flex flex-wrap gap-2">
-        {(farmer.specialties || ["Organic Farming"]).map((specialty) => (
-          <span
-            key={specialty}
-            className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm"
-          >
-            {specialty}
-          </span>
-        ))}
-      </div>
-      <button
-        className="mt-4 w-full absolute bottom-4  bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors"
-        onClick={(e) => {
-          e.stopPropagation();
-          alert(`Navigating to profile of ${farmer.farm_name}`);
-        }}
-      >
-        View Profile
-      </button>
-    </div>
-  );
-}
-
-// Main Component
-export default function Mock() {
-  const [categories] = useState([
-    { id: 1, name: "Vegetables", icon: "leaf" },
-    { id: 2, name: "Fruits", icon: "apple-alt" },
-    { id: 3, name: "Grains", icon: "wheat-awn" },
-    { id: 4, name: "Dairy", icon: "milk" },
-  ]);
-
-  const [featuredFarmers] = useState([
-    {
-      id: 1,
-      farm_name: "Green Acres Farm",
-      location: "Springfield Valley",
-      profile_image: image8,
-      rating: 4.8,
-      review_count: 124,
-      specialties: ["Organic Vegetables", "Herbs", "Fruits"],
-    },
-    {
-      id: 2,
-      farm_name: "Sunrise Valley Farm",
-      profile_image: image7,
-      location: "Mountain View",
-      specialties: ["Free-range Eggs", "Dairy"],
-    },
-  ]);
-
- 
+export default function MyProposalsPage() {
+  const [proposals] = useState(initialProposals);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation Bar */}
-     
+    <div className="min-h-screen bg-gray-50 px-4 py-8">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-bold text-green-700 mb-6">My Submitted Proposals</h1>
 
-      {/* Main Content */}
-      <div className="container mx-auto py-12 px-4">
-        {/* Featured Farmers Section */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 font-roboto">Featured Farmers</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {featuredFarmers.map((farmer) => (
-              <FarmerCard key={farmer.id} farmer={farmer} />
+        {proposals.length === 0 ? (
+          <div className="text-center text-gray-600">
+            <FaClock className="mx-auto text-4xl mb-4" />
+            <p>You haven't submitted any proposals yet.</p>
+          </div>
+        ) : (
+          <div className="grid gap-6">
+            {proposals.map((proposal) => (
+              <div
+                key={proposal.id}
+                className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition"
+              >
+                <div className="flex justify-between items-start flex-wrap gap-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                      <FaFileAlt className="text-green-500" /> {proposal.title}
+                    </h2>
+                    <p className="text-sm text-gray-500 mt-1">{proposal.description}</p>
+                    <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
+                      <span className="flex items-center gap-1">
+                        <FaUser className="text-gray-400" /> Submitted by: {proposal.submittedBy}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <FaCalendarAlt className="text-gray-400" /> {proposal.date}
+                      </span>
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-white ${
+                          proposal.status === "Approved"
+                            ? "bg-green-500"
+                            : proposal.status === "Rejected"
+                            ? "bg-red-500"
+                            : "bg-yellow-500"
+                        }`}
+                      >
+                        {proposal.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="min-w-[90px]">
+                    <button
+                      onClick={() => alert(`Proposal Details:\n\n${proposal.title}\n\n${proposal.description}`)}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
-        </section>
-
-      
+        )}
       </div>
     </div>
   );

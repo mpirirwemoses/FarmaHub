@@ -4,24 +4,22 @@ import { useEffect } from 'react';
 
 // Components
 import Mock from './assets/Components/MockFarmerconnections';
-import StoryComponent from './assets/Components/BookContractMock';
+
 import FarmerProf from './assets/Components/MockFarmerProfile';
 import Category from './assets/Components/Products';
 import CategoryDisplay from './assets/Components/ProductsCategoryDisplay';
 import ProductListDisplay from './assets/Components/ProductsListDisplay';
 import Dashboard from './assets/Components/MockDataDash';
-import ContractApply from './assets/Components/ContractForm';
-import Profile from './assets/Components/ContractsList';
+
+
 import ContractOpportunities from './assets/Components/Opportunities';
 import { ExampleUsage } from './assets/Components/ContractDetails';
 import Navbar from './assets/Components/NavBar';
 import RecentContracts from './assets/Components/RecentContracts';
 import Navigation from './assets/Components/Navigation';
 import Head from './assets/Components/head';
+import Footer from './assets/Components/Footer';
 
-import CategoriesPage from './assets/Components/Extra';
-import Trial from './assets/Components/Trial';
-import Try from './assets/Components/Try';
 
 function AutoRedirect() {
   const navigate = useNavigate();
@@ -53,16 +51,12 @@ function App() {
         <Route path="/mock" element={<Mock />} />
         <Route path="/recent-contracts" element={<RecentContracts />} />
         <Route path="/farmer-profile/:id" element={<FarmerProf />} />
-        <Route path="/profile/:id" element={<Profile />} />
+        
         <Route path="/example-usage/:id" element={<ExampleUsage />} />
         <Route path="/navigation" element={<Navigation />} />
-        <Route path="/product-list" element={<ProductListDisplay />} />
+        <Route path="/products" element={<ProductListDisplay />} />
       </Routes>
-      <ProductListDisplay />
-      <CategoriesPage/>
-      <Trial/>
-      <Try/>
-      <Navigation/>
+      <Footer/>
     </Router>
   );
 }

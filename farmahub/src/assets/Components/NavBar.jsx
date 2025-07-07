@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
   // Simulate authentication state
@@ -10,7 +11,7 @@ export default function Navbar() {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo/Brand Name */}
-        <div className="flex items-center space-x-2">
+     <div className="flex items-center space-x-2">
           <img
             src="/images/logo.png"
             alt="App Logo"
@@ -24,18 +25,14 @@ export default function Navbar() {
           <a href="/dashboard" className="hover:text-green-600">
             Dashboard
           </a>
-          <a href="/contracts" className="hover:text-green-600">
+          <a href="/contracts" className="sm:hidden hover:text-green-600">
             Contracts
           </a>
-          <a href="/farmers" className="hover:text-green-600">
-            Farmers
-          </a>
+          
           <a href="/restaurants" className="hover:text-green-600">
             Restaurants
           </a>
-          <a href="/produce" className="hover:text-green-600">
-            Produce
-          </a>
+          
         </div>
 
         {/* Search Bar */}
@@ -48,9 +45,10 @@ export default function Navbar() {
         </div>
 
         {/* User Profile Section */}
-        <div className="flex items-center space-x-4">
+         <div className="flex items-center space-x-4">
           {isAuthenticated ? (
             <div className="relative">
+              <Link to ="/farmer-profile/:id" > 
               <button className="flex items-center space-x-2">
                 <img
                   src="/images/user-avatar.jpg"
@@ -60,6 +58,7 @@ export default function Navbar() {
                 <span className="text-gray-700 font-medium">{user.name}</span>
                 <i className="fas fa-chevron-down text-gray-500"></i>
               </button>
+              </Link>
               {/* Dropdown Menu */}
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg hidden">
                 <a
