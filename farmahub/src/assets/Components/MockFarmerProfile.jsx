@@ -1,21 +1,30 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import image4 from "../../assets/images/pexels-jill-wellington-1638660-413735.jpg";
-import image5 from "../../assets/images/pexels-joaojesusdesign-1084540.jpg";
-import "./ProductDisplay"
 import ProductDisplay from "./ProductDisplay";
-// Sample ProductList Component (Inline for simplicity)
+import axios from 'axios';
+
 function ProductList({ farmerId }) {
-  const mockProducts = [
-    { id: 1, name: "Tomatoes", price: 2.5, unit: "kg" },
-    { id: 2, name: "Carrots", price: 1.8, unit: "kg" },
-    { id: 3, name: "Apples", price: 3.0, unit: "kg" },
-  ];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!farmerId) return;
+    setLoading(true);
+    axios.get(`/api/products?farmerId=${farmerId}`)
+      .then(res => setProducts(res.data))
+      .catch(err => setError('Failed to load products'))
+      .finally(() => setLoading(false));
+  }, [farmerId]);
+
+  if (loading) return <div>Loading products...</div>;
+  if (error) return <div>{error}</div>;
+  if (!products.length) return <div>No products found.</div>;
 
   return (
     <div className="space-y-4">
-      {mockProducts.map((product) => (
-        <div key={product.id} onClick={<ProductDisplay/>} className="bg-gray-100 p-4 rounded-lg">
+      {products.map((product) => (
+        <div key={product.id} className="bg-gray-100 p-4 rounded-lg">
           <h3 className="font-semibold">{product.name}</h3>
           <p className="text-gray-600">
             ${product.price}/{product.unit}
@@ -26,7 +35,6 @@ function ProductList({ farmerId }) {
   );
 }
 
-// FarmerProfile Component
 function FarmerProfile({ farmerId }) {
   const [farmer, setFarmer] = useState(null);
   const [activeTab, setActiveTab] = useState("about");
@@ -34,37 +42,12 @@ function FarmerProfile({ farmerId }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchFarmer = async () => {
-      try {
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // Mock API response based on farmerId
-        if (farmerId === 1) {
-          setFarmer({
-            id: 1,
-            farm_name: "Green Acres Farm",
-            location: "Springfield Valley",
-            profile_image:image5 ,
-            email: "farmer@greenacres.com",
-            description:
-              "We are a family-owned farm specializing in organic produce and sustainable farming practices.",
-            specialties: ["Organic Vegetables", "Herbs", "Fruits"],
-          });
-        } else {
-          throw new Error("Farmer not found");
-        }
-      } catch (err) {
-        console.error("Failed to fetch farmer:", err);
-        setError("Unable to load farmer profile. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (farmerId) {
-      fetchFarmer();
-    }
+    if (!farmerId) return;
+    setLoading(true);
+    axios.get(`/api/farmers/${farmerId}`)
+      .then(res => setFarmer(res.data))
+      .catch(err => setError('Unable to load farmer profile. Please try again later.'))
+      .finally(() => setLoading(false));
   }, [farmerId]);
 
   if (loading) {
@@ -160,7 +143,7 @@ function FarmerProfile({ farmerId }) {
                     {(farmer.specialties || ["Organic Farming"]).map(
                       (specialty, index) => (
                         <li key={index} className="text-gray-600">
-                          {specialty}
+                          {specialty.name || specialty}
                         </li>
                       )
                     )}
@@ -173,7 +156,7 @@ function FarmerProfile({ farmerId }) {
               </div>
             </div>
           )}
-          {activeTab === "products" && <ProductList farmerId={farmerId} />}
+          {activeTab === "products" && <ProductList farmerId={farmer.id} />}
           {activeTab === "reviews" && (
             <div className="text-center text-gray-500">
               Reviews coming soon...
@@ -185,26 +168,12 @@ function FarmerProfile({ farmerId }) {
   );
 }
 
-// Main Component for Testing
 export default function FarmerProf() {
   return (
     <div className="bg-gray-50 p-4 space-y-8">
-      {/* Loading State */}
-      <div>
-        <h3 className="text-lg font-bold mb-4">Loading State</h3>
-        <FarmerProfile farmerId={null} />
-      </div>
-
-      {/* With Farmer Data */}
       <div>
         <h3 className="text-lg font-bold mb-4">With Farmer Data</h3>
         <FarmerProfile farmerId={1} />
-      </div>
-
-      {/* Error State */}
-      <div>
-        <h3 className="text-lg font-bold mb-4">Error State</h3>
-        <FarmerProfile farmerId={999} />
       </div>
     </div>
   );

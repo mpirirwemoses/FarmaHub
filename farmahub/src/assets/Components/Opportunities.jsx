@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { ExampleUsage } from "./ContractDetails";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from 'react';
+import axios from 'axios';
 
 // Sample Opportunity Card Component
 function OpportunityCard({ contract }) {
@@ -21,7 +23,7 @@ function OpportunityCard({ contract }) {
     <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
       <h3 className="text-xl font-bold mb-2">{contract.produce_name}</h3>
       <p className="text-gray-600 mb-2">
-        <span className="font-medium">Farmer:</span> {contract.farm_name}
+        <span className="font-medium">Posted by:</span> {contract.posted_by}
       </p>
       <p className="text-gray-600 mb-2">
         <span className="font-medium">Minimum Duration:</span>{" "}
@@ -65,65 +67,56 @@ export default function ContractOpportunities() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [contracts, setContracts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock Data for Contracts
-  const mockContracts = [
-    {
-      id: 1,
-      produce_name: "Organic Tomatoes",
-      farm_name: "Green Acres Farm",
-      quantity: 100,
-      price: 2.5,
-      start_date: "2023-10-01",
-      end_date: "2024-03-01",
-      renewal_status: "active",
-    },
-    {
-      id: 2,
-      produce_name: "Fresh Lettuce",
-      farm_name: "Sunshine Valley Farm",
-      quantity: 50,
-      price: 1.75,
-      start_date: "2023-09-15",
-      end_date: "2024-01-15",
-      renewal_status: "pending",
-    },
-    {
-      id: 3,
-      produce_name: "Carrots",
-      farm_name: "Healthy Roots Farm",
-      quantity: 200,
-      price: 1.2,
-      start_date: "2023-11-01",
-      end_date: "2024-05-01",
-      renewal_status: "active",
-    },
-  ];
+  useEffect(() => {
+    setLoading(true);
+    axios.get('http://localhost:4001/api/restaurants')
+      .then(res => {
+        // Map supply request data to the format expected by the UI
+        const mappedContracts = Array.isArray(res.data) ? res.data.map(sr => ({
+          id: sr.id,
+          title: sr.productName,
+          description: sr.specialInstructions || sr.qualityRequirements || 'No description available',
+          quantity: sr.quantityNeeded,
+          price: sr.maxPricePerUnit,
+          unit: sr.unit,
+          start_date: sr.startDate || sr.preferredDeliveryDate,
+          end_date: sr.endDate || sr.preferredDeliveryDate,
+          status: sr.status || sr.urgency || 'active',
+          category: sr.category,
+          deliveryAddress: sr.deliveryAddress,
+          contactPhone: sr.contactPhone,
+          urgency: sr.urgency,
+          qualityRequirements: sr.qualityRequirements
+        })) : [];
+        console.log('Mapped supply requests:', mappedContracts);
+        setContracts(mappedContracts);
+      })
+      .catch(err => {
+        console.error('Error fetching supply requests:', err);
+        setError('Failed to load supply requests');
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-  // Filter and Sort Contracts
   const filterAndSortContracts = () => {
-    let filtered = [...mockContracts];
-
-    // Filter by search query
+    let filtered = [...contracts];
     if (searchQuery) {
       filtered = filtered.filter(
         (c) =>
-          c.produce_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.farm_name.toLowerCase().includes(searchQuery.toLowerCase())
+          c.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.description?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
-    // Filter by status
     if (statusFilter !== "all") {
-      filtered = filtered.filter((c) => c.renewal_status === statusFilter);
+      filtered = filtered.filter((c) => c.status === statusFilter);
     }
-
-    // Sort by selected criteria
     switch (sortBy) {
       case "oldest":
-        filtered.sort(
-          (a, b) => new Date(a.start_date) - new Date(b.start_date)
-        );
+        filtered.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
         break;
       case "price-high":
         filtered.sort((a, b) => b.price * b.quantity - a.price * a.quantity);
@@ -132,13 +125,13 @@ export default function ContractOpportunities() {
         filtered.sort((a, b) => a.price * a.quantity - b.price * b.quantity);
         break;
       default:
-        filtered.sort(
-          (a, b) => new Date(b.start_date) - new Date(a.start_date)
-        );
+        filtered.sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
     }
-
     return filtered;
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -159,7 +152,8 @@ export default function ContractOpportunities() {
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
-            <option value="pending">Pending</option>
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
           </select>
           <select
             className="px-4 py-2 border rounded-lg"
@@ -173,13 +167,122 @@ export default function ContractOpportunities() {
           </select>
         </div>
       </div>
-
       {/* Opportunities List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filterAndSortContracts().map((contract) => (
-          <OpportunityCard key={contract.id} contract={contract} />
+          <GeneralOpportunityCard key={contract.id} contract={contract} />
         ))}
       </div>
+    </div>
+  );
+}
+
+// General Opportunity Card Component
+function GeneralOpportunityCard({ contract }) {
+  const [clicked, setClicked] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const navigate = useNavigate();
+
+  const handleButtonClick = (id) => {
+    navigate(`/example-usage/${id}`);
+  };
+
+  const handleApply = async (id) => {
+    try {
+      setFeedback("Applying...");
+      await axios.post(`http://localhost:4001/api/restaurants/${id}/apply`);
+      setFeedback("Application submitted!");
+    } catch (e) {
+      setFeedback("Failed to apply.");
+    }
+  };
+
+  // Calculate contract duration
+  const getContractDuration = () => {
+    if (contract.start_date && contract.end_date) {
+      const start = new Date(contract.start_date);
+      const end = new Date(contract.end_date);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return `${diffDays} days`;
+    }
+    return 'Flexible';
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-xl font-bold">{contract.title}</h3>
+        <span className={`px-2 py-1 rounded-full text-xs ${
+          contract.urgency === 'HIGH' ? 'bg-red-100 text-red-800' :
+          contract.urgency === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
+          'bg-green-100 text-green-800'
+        }`}>
+          {contract.urgency || 'Normal'}
+        </span>
+      </div>
+      
+      <p className="text-gray-600 mb-2">{contract.description}</p>
+      
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div>
+          <span className="font-medium text-sm">Category:</span>
+          <p className="text-gray-600 text-sm">{contract.category || 'N/A'}</p>
+        </div>
+        <div>
+          <span className="font-medium text-sm">Quantity:</span>
+          <p className="text-gray-600 text-sm">{contract.quantity} {contract.unit}</p>
+        </div>
+        <div>
+          <span className="font-medium text-sm">Max Price:</span>
+          <p className="text-gray-600 text-sm">${contract.price} per {contract.unit}</p>
+        </div>
+        <div>
+          <span className="font-medium text-sm">Duration:</span>
+          <p className="text-gray-600 text-sm">{getContractDuration()}</p>
+        </div>
+      </div>
+
+      {contract.start_date && contract.end_date && (
+        <p className="text-gray-600 mb-2 text-sm">
+          <span className="font-medium">Contract Period:</span> {contract.start_date?.slice(0, 10)} to {contract.end_date?.slice(0, 10)}
+        </p>
+      )}
+
+      {contract.deliveryAddress && (
+        <p className="text-gray-600 mb-2 text-sm">
+          <span className="font-medium">Delivery Address:</span> {contract.deliveryAddress}
+        </p>
+      )}
+
+      {contract.contactPhone && (
+        <p className="text-gray-600 mb-2 text-sm">
+          <span className="font-medium">Contact:</span> {contract.contactPhone}
+        </p>
+      )}
+
+      {contract.qualityRequirements && (
+        <p className="text-gray-600 mb-2 text-sm">
+          <span className="font-medium">Quality Requirements:</span> {contract.qualityRequirements}
+        </p>
+      )}
+
+      <div className="flex gap-2 mt-4">
+        <button
+          className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors"
+          onClick={() => handleButtonClick(contract.id)}
+        >
+          View Details
+        </button>
+        <button
+          className="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-colors"
+          onClick={() => handleApply(contract.id)}
+        >
+          Apply Now
+        </button>
+      </div>
+      
+      {feedback && <div className="mt-2 text-sm text-blue-700">{feedback}</div>}
     </div>
   );
 }

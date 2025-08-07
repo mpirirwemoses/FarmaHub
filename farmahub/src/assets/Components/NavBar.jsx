@@ -1,11 +1,12 @@
 "use client";
 import React from "react";
 import { Link } from "react-router-dom";
+import { useUser } from '../../context/UserContext';
 
 export default function Navbar() {
-  // Simulate authentication state
-  const isAuthenticated = true; // Replace with actual auth logic
-  const user = { name: "John Doe", role: "restaurant" }; // Replace with actual user data
+  const { currentUser, logout } = useUser();
+  const isAuthenticated = !!currentUser;
+  const user = currentUser || { fullName: "Guest", role: "guest" };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -55,7 +56,7 @@ export default function Navbar() {
                   alt="User Avatar"
                   className="w-8 h-8 rounded-full"
                 />
-                <span className="text-gray-700 font-medium">{user.name}</span>
+                <span className="text-gray-700 font-medium">{user.fullName}</span>
                 <i className="fas fa-chevron-down text-gray-500"></i>
               </button>
               </Link>

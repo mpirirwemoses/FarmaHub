@@ -1,18 +1,13 @@
 "use client";
-import React, { useState } from "react";
-import image6 from "../../assets/images/pexels-markusspiske-131772.jpg";
-import image7 from "../../assets/images/pexels-pixabay-248420.jpg";
-import image8 from "../../assets/images/pexels-wendywei-1656663.jpg";
-import image9 from "../../assets/images/trees-2900064_1920.jpg";
+import React, { useState, useEffect } from "react";
+import axios from 'axios';
 
-// FarmerCard Component
 function FarmerCard({ farmer }) {
   return (
     <div
       onClick={() => alert(`Viewing profile of ${farmer.farm_name}`)}
       className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300 ease-in-out"
     >
-      {/* Standard <img> tag instead of Next.js Image */}
       <img
         src={farmer.profile_image || "/images/default-farm.jpg"}
         alt={`${farmer.farm_name} farm view`}
@@ -21,8 +16,6 @@ function FarmerCard({ farmer }) {
       <div className="p-4">
         <h3 className="text-xl font-bold text-gray-800">{farmer.farm_name}</h3>
         <p className="text-sm text-gray-600 mt-2">{farmer.location}</p>
-
-        {/* Rating */}
         <div className="flex items-center mt-3">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -42,20 +35,16 @@ function FarmerCard({ farmer }) {
             {farmer.rating || "4.5"} ({farmer.review_count || "0"} reviews)
           </span>
         </div>
-
-        {/* Specialties */}
         <div className="mt-4 flex flex-wrap gap-2">
           {(farmer.specialties || ["Organic Farming"]).map((specialty) => (
             <span
-              key={specialty}
+              key={specialty.name || specialty}
               className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"
             >
-              {specialty}
+              {specialty.name || specialty}
             </span>
           ))}
         </div>
-
-        {/* CTA Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -70,33 +59,28 @@ function FarmerCard({ farmer }) {
   );
 }
 
-// Main Component
 export default function Mock() {
-  const [categories] = useState([
-    { id: 1, name: "Vegetables", icon: "leaf" },
-    { id: 2, name: "Fruits", icon: "apple-alt" },
-    { id: 3, name: "Grains", icon: "wheat-awn" },
-    { id: 4, name: "Dairy", icon: "milk" },
-  ]);
+  const [categories, setCategories] = useState([]);
+  const [featuredFarmers, setFeaturedFarmers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [featuredFarmers] = useState([
-    {
-      id: 1,
-      farm_name: "Green Acres Farm",
-      location: "Springfield Valley",
-      profile_image: image8,
-      rating: 4.8,
-      review_count: 124,
-      specialties: ["Organic Vegetables", "Herbs", "Fruits"],
-    },
-    {
-      id: 2,
-      farm_name: "Sunrise Valley Farm",
-      profile_image: image7,
-      location: "Mountain View",
-      specialties: ["Free-range Eggs", "Dairy"],
-    },
-  ]);
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      axios.get('/api/categories'),
+      axios.get('/api/farmers'),
+    ])
+      .then(([catRes, farmerRes]) => {
+        setCategories(catRes.data);
+        setFeaturedFarmers(farmerRes.data);
+      })
+      .catch(() => setError('Failed to load data'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -117,7 +101,6 @@ export default function Mock() {
           </ul>
         </div>
       </nav>
-
       <div className="container mx-auto py-12 px-4">
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-6 text-gray-800">

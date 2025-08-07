@@ -1,6 +1,7 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { useEffect } from 'react';
+import { UserProvider } from './context/UserContext';
 
 // Components
 import Mock from './assets/Components/MockFarmerconnections';
@@ -37,27 +38,29 @@ function AutoRedirect() {
 
 function App() {
   return (
-    <Router>
-      {/* Wrap the entire app with Router to ensure routing works */}
-      <Navbar />
-      <Head />
-      <Category />
-      <CategoryDisplay />
+    <UserProvider>
+      <Router>
+        {/* Wrap the entire app with Router to ensure routing works */}
+        <Navbar />
+        <Head />
+        <Category />
+        <CategoryDisplay />
 
-      <Routes>
-        <Route path="/" element={<AutoRedirect />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/contract-opportunities" element={<ContractOpportunities />} />
-        <Route path="/mock" element={<Mock />} />
-        <Route path="/recent-contracts" element={<RecentContracts />} />
-        <Route path="/farmer-profile/:id" element={<FarmerProf />} />
-        
-        <Route path="/example-usage/:id" element={<ExampleUsage />} />
-        <Route path="/navigation" element={<Navigation />} />
-        <Route path="/products" element={<ProductListDisplay />} />
-      </Routes>
-      <Footer/>
-    </Router>
+        <Routes>
+          <Route path="/" element={<AutoRedirect />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/contract-opportunities" element={<ContractOpportunities />} />
+          <Route path="/mock" element={<Mock />} />
+          <Route path="/recent-contracts" element={<RecentContracts />} />
+          <Route path="/farmer-profile/:id" element={<FarmerProf />} />
+          
+          <Route path="/example-usage/:id" element={<ExampleUsage />} />
+          <Route path="/navigation" element={<Navigation />} />
+          <Route path="/products" element={<ProductListDisplay />} />
+        </Routes>
+        <Footer/>
+      </Router>
+    </UserProvider>
   );
 }
 

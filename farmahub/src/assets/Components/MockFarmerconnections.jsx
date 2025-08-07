@@ -1,42 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaUser, FaCalendarAlt, FaFileAlt, FaClock } from "react-icons/fa";
+import axios from 'axios';
 
-const initialProposals = [
-  {
-    id: 1,
-    title: "Smart Irrigation System",
-    submittedBy: "You",
-    date: "2025-07-06",
-    status: "Pending",
-    description: "A system that uses soil moisture and weather data to automate irrigation.",
-  },
-  {
-    id: 2,
-    title: "AI Crop Disease Detector",
-    submittedBy: "You",
-    date: "2025-07-05",
-    status: "Approved",
-    description: "An AI mobile app that detects crop diseases from leaf images.",
-  },
-  {
-    id: 3,
-    title: "Digital Market Access",
-    submittedBy: "You",
-    date: "2025-07-04",
-    status: "Rejected",
-    description: "A platform to connect rural farmers directly to urban buyers.",
-  },
-];
+export default function MyProposalsPage({ farmerId = 1 }) {
+  const [proposals, setProposals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-export default function MyProposalsPage() {
-  const [proposals] = useState(initialProposals);
+  useEffect(() => {
+    setLoading(true);
+    axios.get(`http://localhost:4000/api/proposals?farmerId=${farmerId}`)
+      .then(res => setProposals(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setError('Failed to load proposals'))
+      .finally(() => setLoading(false));
+  }, [farmerId]);
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold text-green-700 mb-6">My Submitted Proposals</h1>
-
-        {proposals.length === 0 ? (
+        {loading ? (
+          <div className="text-center text-gray-600">
+            <FaClock className="mx-auto text-4xl mb-4" />
+            <p>Loading proposals...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-600">{error}</div>
+        ) : proposals.length === 0 ? (
           <div className="text-center text-gray-600">
             <FaClock className="mx-auto text-4xl mb-4" />
             <p>You haven't submitted any proposals yet.</p>
@@ -74,7 +64,6 @@ export default function MyProposalsPage() {
                       </span>
                     </div>
                   </div>
-
                   <div className="min-w-[90px]">
                     <button
                       onClick={() => alert(`Proposal Details:\n\n${proposal.title}\n\n${proposal.description}`)}

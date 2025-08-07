@@ -2,46 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import StoryComponent from "./BookContractMock";
+import AddProductForm from "./AddProductForm";
 import { FiPlus, FiTrendingUp, FiCheckCircle, FiClock, FiXCircle, FiStar, FiDollarSign, FiUser, FiPackage } from "react-icons/fi";
+import axios from 'axios';
 
-
-// Mock API Functions (moved outside component for better organization)
-const fetchFeaturedFarmers = async () => [
-  { id: 1, farm_name: "Green Acres Farm", avg_rating: 4.8, contract_count: 12, image: "/farm1.jpg" },
-  { id: 2, farm_name: "Sunshine Valley Farm", avg_rating: 4.6, contract_count: 10, image: "/farm2.jpg" },
-];
-
-const fetchRecentContracts = async () => [
-  {
-    id: 1,
-    produce_name: "Organic Tomatoes",
-    farm_name: "Green Acres Farm",
-    restaurant_name: "Fresh Bites Restaurant",
-    quantity: 100,
-    price: 2.5,
-    created_at: "2023-10-01",
-    status: "active",
-    image: "/tomatoes.jpg"
-  },
-  {
-    id: 2,
-    produce_name: "Fresh Lettuce",
-    farm_name: "Sunshine Valley Farm",
-    restaurant_name: "Salad Bowl Cafe",
-    quantity: 50,
-    price: 1.75,
-    created_at: "2023-09-15",
-    status: "completed",
-    image: "/lettuce.jpg"
-  },
-];
-
-const fetchContractStats = async () => ({
-  total_contracts: 50,
-  active_contracts: 30,
-  pending_contracts: 10,
-  cancelled_contracts: 10,
-});
 
 // Add Product Button Component
 const AddProductButton = React.memo(({ onClick }) => {
@@ -145,30 +109,40 @@ export default function Dashboard() {
   const [contractStats, setContractStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [clicked, setClicked] = useState(false);
+  const [showAddProductForm, setShowAddProductForm] = useState(false);
 
   const handleClick = useCallback(() => {
     setClicked(prev => !prev);
   }, []);
 
   const handleAddProduct = useCallback(() => {
-    // Implement your add product logic here
-    console.log("Add product clicked");
-    // This could open a modal or navigate to a form
+    setShowAddProductForm(true);
+  }, []);
+
+  const handleProductSuccess = useCallback((result) => {
+    console.log("Product created successfully:", result);
+    // Optionally refresh the dashboard data
+    // You could fetch updated products or show a success message
   }, []);
 
   useEffect(() => {
     let mounted = true;
-    
     const fetchData = async () => {
       try {
-        const [farmers, contracts, stats] = await Promise.all([
-          fetchFeaturedFarmers(),
-          fetchRecentContracts(),
-          fetchContractStats(),
+        const [farmersRes, contractsRes] = await Promise.all([
+          axios.get('http://localhost:4001/api/farmers'),
+          axios.get('http://localhost:4001/api/contracts'),
         ]);
-        
+        // Ensure contracts is always an array
+        const contracts = Array.isArray(contractsRes.data) ? contractsRes.data : [];
+        const stats = {
+          total_contracts: contracts.length,
+          active_contracts: contracts.filter(c => c.status === 'active').length,
+          pending_contracts: contracts.filter(c => c.status === 'pending').length,
+          cancelled_contracts: contracts.filter(c => c.status === 'cancelled').length,
+        };
         if (mounted) {
-          setFeaturedFarmers(farmers);
+          setFeaturedFarmers(Array.isArray(farmersRes.data) ? farmersRes.data : []);
           setRecentContracts(contracts);
           setContractStats(stats);
         }
@@ -180,12 +154,8 @@ export default function Dashboard() {
         }
       }
     };
-
     fetchData();
-
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
 
   if (loading) {
@@ -341,7 +311,13 @@ export default function Dashboard() {
         {clicked && <StoryComponent />}
       </div>
 
-     
+      {/* Add Product Form Modal */}
+      {showAddProductForm && (
+        <AddProductForm
+          onClose={() => setShowAddProductForm(false)}
+          onSuccess={handleProductSuccess}
+        />
+      )}
     </div>
   );
 }
